@@ -1,18 +1,20 @@
 {
-  "name": "gitc",
+  "name": "@rare-dev/gitc",
   "module": "gitc.ts",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "homepage": "https://github.com/devravinder/gitc",
   "author": {
     "name": "Ravinder Reddy",
     "url": "https://github.com/devravinder"
   },
-  "type": "module",
   "private": false,
+  "type": "module",
   "description": "A simple CLI utility that copy git files fom git url",
   "scripts": {
-    "dev":"bun gitc.ts",
-    "build":"bun build ./gitc.ts --outfile dist/gitc --compile"
+    "dev": "bun gitc.ts",
+    "build": "bun build ./gitc.ts --outdir dist",
+    "build:standalone": "bun build ./gitc.ts --outfile dist/gitc --compile",
+    "push": "bun publish"
   },
   "devDependencies": {
     "@types/bun": "latest"

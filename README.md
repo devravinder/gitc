@@ -14,3 +14,5 @@ A simple tool(command) to copy files from git repo using url
 1. `bun init`
 2. changed files & added the necessary scripts in package.json
 3. `bun run build`
+4. `bun run push`
+   - login if needed `bunx npm login`
