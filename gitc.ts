@@ -17,9 +17,7 @@ async function main() {
   }
 
   const url = args[0]!;
-  const outputDir = process.cwd();
-
-  console.log({ url });
+  const outputDir = args[1]! || process.cwd();
 
   try {
     const info = parseGitHubUrl(url);

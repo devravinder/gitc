@@ -1,5 +1,6 @@
 import { join } from "path";
 import { mkdir, writeFile } from "fs/promises";
+import { existsSync } from "fs";
 
 // https://docs.github.com/
 // https://api.github.com/
@@ -20,8 +21,6 @@ type GitDoc = {
   size: number;
   url: string;
 };
-
-
 
 const createDir = async (info: GitHubInfo, outputDir: string) => {
   const folderName = info.path ? info.path.split("/").pop() : info.repo;
@@ -90,7 +89,7 @@ export const downloadTree = async (info: GitHubInfo, outputDir: string) => {
     for (let i = 0; i < files.length; i += batchSize) {
       const batch = files.slice(i, i + batchSize);
       await Promise.all(
-        batch.map((file)=>downloadNestedFile(file,info, baseDir))
+        batch.map((file) => downloadNestedFile(file, info, baseDir))
       );
     }
 
@@ -112,9 +111,16 @@ export const downloadFile = async (info: GitHubInfo, outputDir: string) => {
     }
 
     const content = await response.text();
-    
+
     const fileName = info.path.split("/").pop() || "download";
     const filePath = join(outputDir, fileName);
+
+    const fileDir = filePath.substring(0, filePath.lastIndexOf("/"));
+
+    // Create directory if needed
+    if (!existsSync(fileDir)) {
+      await mkdir(fileDir, { recursive: true });
+    }
 
     await writeFile(filePath, content);
     console.log(`✓ Downloaded: ${fileName}`);
@@ -123,7 +129,6 @@ export const downloadFile = async (info: GitHubInfo, outputDir: string) => {
     throw error;
   }
 };
-
 
 export const parseGitHubUrl = (url: string): GitHubInfo => {
   const regex =
