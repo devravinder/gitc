@@ -1,6 +1,11 @@
 {
   "name": "gitc",
   "module": "gitc.ts",
+  "homepage": "https://github.com/devravinder/gitc",
+  "author": {
+    "name": "Ravinder Reddy",
+    "url": "https://github.com/devravinder"
+  },
   "type": "module",
   "private": false,
   "description": "A simple CLI utility that copy git files fom git url",
