@@ -1,7 +1,7 @@
 {
   "name": "@rare-dev/gitc",
   "module": "gitc.ts",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "homepage": "https://github.com/devravinder/gitc",
   "author": {
     "name": "Ravinder Reddy",
@@ -9,7 +9,7 @@
   },
   "private": false,
   "type": "module",
-  "description": "A simple CLI utility that copies git files fom git url",
+  "description": "A simple CLI utility that copies git files using git url",
   "scripts": {
     "dev": "bun gitc.ts",
     "build": "bun build ./gitc.ts --outdir dist",

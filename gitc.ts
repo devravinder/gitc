@@ -1,18 +1,14 @@
-import { downloadFile, downloadTree, parseGitHubUrl } from "./github/github";
+import { downloadFile, downloadTree, parseGitHubUrl } from "./github";
 
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error("Usage: bun script.ts <github-url>");
+    console.error("Usage: gitc <github-url>");
     console.error("\nExamples:");
-    console.error("  bun script.ts https://github.com/user/repo");
-    console.error(
-      "  bun script.ts https://github.com/user/repo/tree/main/folder"
-    );
-    console.error(
-      "  bun script.ts https://github.com/user/repo/blob/main/file.js"
-    );
+    console.error("  gitc https://github.com/user/repo");
+    console.error("  gitc https://github.com/user/repo/tree/main/folder");
+    console.error("  gitc https://github.com/user/repo/blob/main/file.js");
     process.exit(1);
   }
 
