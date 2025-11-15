@@ -1,0 +1,20 @@
+{
+  "name": "gitc",
+  "module": "gitc.ts",
+  "type": "module",
+  "private": false,
+  "description": "A simple CLI utility that copy git files fom git url",
+  "scripts": {
+    "dev":"bun gitc.ts",
+    "build":"bun build ./gitc.ts --outfile dist/gitc --compile"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "files": [
+    "dist"
+  ]
+}
