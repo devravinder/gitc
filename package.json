@@ -1,6 +1,7 @@
 {
   "name": "gitc",
   "module": "gitc.ts",
+  "version": "0.0.1",
   "homepage": "https://github.com/devravinder/gitc",
   "author": {
     "name": "Ravinder Reddy",
