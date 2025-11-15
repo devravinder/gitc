@@ -1,7 +1,6 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-
+import { join } from "path";
+import { mkdir, writeFile } from "fs/promises";
+import { existsSync } from "fs";
 
 // https://docs.github.com/
 // https://api.github.com/
