@@ -11,11 +11,11 @@ A simple tool(command) to copy files from git repo using url
 
 2. copy
    1. entire repo
-     ```gitc  https://github.com/devravinder/notes```
+     ```gitc  https://github.com/devravinder/gitc```
    2. sub folder
-      ```gitc https://github.com/devravinder/notes/tree/master/IDEs```
+      ```gitc https://github.com/devravinder/gitc/tree/main/github```
    3. specific file
-      ```gitc https://github.com/devravinder/notes/blob/master/IDEs/eclipse.txt```
+      ```gitc https://github.com/devravinder/gitc/blob/main/gitc.ts```
 
 ## How I started
 
@@ -24,3 +24,17 @@ A simple tool(command) to copy files from git repo using url
 3. `bun run build`
 4. `bun run push`
    - login if needed `bunx npm login`
+
+
+
+# Make it executable
+chmod +x script.ts
+
+# Download a specific folder
+bun gitc.ts https://github.com/tanstack/router/tree/main/examples/react/kitchen-sink-file-based
+
+# Download entire repo
+bun gitc.ts https://github.com/TanStack/router
+
+# Download a single file
+bun gitc.ts https://github.com/TanStack/router/blob/main/gpt/generate.js

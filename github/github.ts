@@ -21,56 +21,7 @@ type GitDoc = {
   url: string;
 };
 
-const parseGitHubUrl = (url: string): GitHubInfo => {
-  const regex =
-    /github\.com\/([^\/]+)\/([^\/]+)(?:\/(?:(blob|tree)\/([^\/]+)\/?(.*)))?/;
-  const match = url.match(regex);
 
-  if (!match) {
-    throw new Error("Invalid GitHub URL");
-  }
-
-  const [, owner, repo, type, branch, path] = match as [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string
-  ];
-
-  // If no type specified, it's the entire repo
-  return {
-    owner,
-    repo,
-    branch: branch || "main",
-    path: path || "",
-    type: !type ? "repo" : type === "blob" ? "file" : "tree",
-  };
-};
-
-const downloadFile = async (info: GitHubInfo, outputDir: string) => {
-  const url = `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${info.branch}/${info.path}`;
-  console.log(`Downloading file: ${info.path}`);
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to download: ${response.statusText}`);
-    }
-
-    const content = await response.text();
-    
-    const fileName = info.path.split("/").pop() || "download";
-    const filePath = join(outputDir, fileName);
-
-    await writeFile(filePath, content);
-    console.log(`✓ Downloaded: ${fileName}`);
-  } catch (error) {
-    console.error(`✗ Error downloading file: ${error}`);
-    throw error;
-  }
-};
 
 const createDir = async (info: GitHubInfo, outputDir: string) => {
   const folderName = info.path ? info.path.split("/").pop() : info.repo;
@@ -127,7 +78,7 @@ const downloadNestedFile = async (
     console.log(`✓ ${fileName}`);
   }
 };
-const downloadTree = async (info: GitHubInfo, outputDir: string) => {
+export const downloadTree = async (info: GitHubInfo, outputDir: string) => {
   try {
     const files = await getFiles(info);
     console.log(`Found ${files.length} files to download`);
@@ -150,46 +101,56 @@ const downloadTree = async (info: GitHubInfo, outputDir: string) => {
   }
 };
 
-//===========
-
-async function main() {
-  const args = process.argv.slice(2);
-
-  if (args.length === 0) {
-    console.error("Usage: bun script.ts <github-url>");
-    console.error("\nExamples:");
-    console.error("  bun script.ts https://github.com/user/repo");
-    console.error(
-      "  bun script.ts https://github.com/user/repo/tree/main/folder"
-    );
-    console.error(
-      "  bun script.ts https://github.com/user/repo/blob/main/file.js"
-    );
-    process.exit(1);
-  }
-
-  const url = args[0]!;
-  const outputDir = process.cwd();
-
-  console.log({ url });
+export const downloadFile = async (info: GitHubInfo, outputDir: string) => {
+  const url = `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${info.branch}/${info.path}`;
+  console.log(`Downloading file: ${info.path}`);
 
   try {
-    const info = parseGitHubUrl(url);
-    console.log(`Repository: ${info.owner}/${info.repo}`);
-    console.log(`Branch: ${info.branch}`);
-    console.log(`Type: ${info.type}`);
-    if (info.path) console.log(`Path: ${info.path}`);
-    console.log();
-
-    if (info.type === "file") {
-      await downloadFile(info, outputDir);
-    } else {
-      await downloadTree(info, outputDir);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download: ${response.statusText}`);
     }
-  } catch (error) {
-    console.error(`Error: ${error}`);
-    process.exit(1);
-  }
-}
 
-main();
+    const content = await response.text();
+    
+    const fileName = info.path.split("/").pop() || "download";
+    const filePath = join(outputDir, fileName);
+
+    await writeFile(filePath, content);
+    console.log(`✓ Downloaded: ${fileName}`);
+  } catch (error) {
+    console.error(`✗ Error downloading file: ${error}`);
+    throw error;
+  }
+};
+
+
+export const parseGitHubUrl = (url: string): GitHubInfo => {
+  const regex =
+    /github\.com\/([^\/]+)\/([^\/]+)(?:\/(?:(blob|tree)\/([^\/]+)\/?(.*)))?/;
+  const match = url.match(regex);
+
+  if (!match) {
+    throw new Error("Invalid GitHub URL");
+  }
+
+  const [, owner, repo, type, branch, path] = match as [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string
+  ];
+
+  // If no type specified, it's the entire repo
+  return {
+    owner,
+    repo,
+    branch: branch || "main",
+    path: path || "",
+    type: !type ? "repo" : type === "blob" ? "file" : "tree",
+  };
+};
+
+//===========
