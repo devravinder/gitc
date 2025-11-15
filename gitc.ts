@@ -27,7 +27,7 @@ async function main() {
     if (info.path) console.log(`Path: ${info.path}`);
     console.log();
 
-    if (info.type === "file") {
+    if (info.type === "blob") {
       await downloadFile(info, outputDir);
     } else {
       await downloadTree(info, outputDir);

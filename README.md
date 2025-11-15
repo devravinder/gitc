@@ -11,11 +11,14 @@ A simple tool(command) to copy files from git repo using url
 
 2. copy
    1. entire repo
-     ```gitc  https://github.com/devravinder/gitc```
+     ```gitc  https://github.com/devravinder/images```
+     ```bun dev https://github.com/devravinder/images```
    2. sub folder
-      ```gitc https://github.com/devravinder/gitc/tree/main/github```
+      ```gitc https://github.com/devravinder/react-ts-learn/tree/master/rare-dev-shadcn-registry/registry```
+      ```bun dev https://github.com/devravinder/react-ts-learn/tree/master/rare-dev-shadcn-registry/registry```
    3. specific file
-      ```gitc https://github.com/devravinder/gitc/blob/main/gitc.ts```
+      ```gitc https://github.com/devravinder/react-ts-learn/blob/master/rare-dev-shadcn-registry/registry.json```
+     ```bun dev https://github.com/devravinder/react-ts-learn/blob/master/rare-dev-shadcn-registry/registry.json```
 
 ## How I started
 

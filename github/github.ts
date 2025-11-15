@@ -10,7 +10,7 @@ type GitHubInfo = {
   repo: string;
   branch: string;
   path: string;
-  type: "file" | "tree" | "repo";
+  type: "blob" | "tree" | "repo";
 };
 
 type GitDoc = {
@@ -154,8 +154,7 @@ export const parseGitHubUrl = (url: string): GitHubInfo => {
     repo,
     branch: branch || "main",
     path: path || "",
-    type: !type ? "repo" : type === "blob" ? "file" : "tree",
+    type: !type ? "repo" : type === "blob" ? "blob" : "tree",
   };
 };
 
-//===========
