@@ -1,8 +1,6 @@
-Here’s a **refactored and polished version** of your `README.md` for the **`gitc`** npm package — more professional, consistent, and user-friendly. I’ve also included a few **suggestions for improvement** at the end 👇
-
----
-
 # 🧩 gitc
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > A lightweight CLI tool to copy files or folders directly from a GitHub repository using a URL — no need to clone the whole repo!
 
