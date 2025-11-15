@@ -22,14 +22,52 @@ type GitDoc = {
   url: string;
 };
 
-const createDir = async (info: GitHubInfo, outputDir: string) => {
+
+const ensureDirectory = async (dirPath: string): Promise<void> => {
+  if (!existsSync(dirPath)) {
+    await mkdir(dirPath, { recursive: true });
+  }
+};
+
+
+const createBaseDir = async (info: GitHubInfo, outputDir: string): Promise<string> => {
   const folderName = info.path ? info.path.split("/").pop() : info.repo;
   const baseDir = join(outputDir, folderName!);
   await mkdir(baseDir, { recursive: true });
   return baseDir;
 };
 
-const getFiles = async (info: GitHubInfo) => {
+const getRawFileUrl = (info: GitHubInfo, filePath: string): string => {
+  return `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${info.branch}/${filePath}`;
+};
+
+
+const fetchFileContent = async (url: string): Promise<string> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to download: ${response.statusText}`);
+  }
+  return response.text();
+};
+
+
+const writeFileWithDirs = async (filePath: string, content: string): Promise<void> => {
+  const fileDir = filePath.substring(0, filePath.lastIndexOf("/"));
+  
+  if (fileDir) {
+    await ensureDirectory(fileDir);
+  }
+  
+  await writeFile(filePath, content);
+};
+
+
+const getRelativeFileName = (filePath: string, prefix: string): string => {
+  return prefix ? filePath.substring(prefix.length) : filePath;
+};
+
+
+const fetchRepositoryTree = async (info: GitHubInfo): Promise<GitDoc[]> => {
   const apiUrl = `https://api.github.com/repos/${info.owner}/${info.repo}/git/trees/${info.branch}?recursive=1`;
   console.log(`Fetching repository tree...`);
 
@@ -39,59 +77,65 @@ const getFiles = async (info: GitHubInfo) => {
   }
 
   const data = (await response.json()) as { tree: GitDoc[] };
-  const tree = data.tree;
+  return data.tree;
+};
 
-  // Filter files based on path prefix
-  const prefix = info.path ? `${info.path}/` : "";
-  const files = tree.filter(
-    (item: any) =>
+
+const filterFilesByFolder = (tree: GitDoc[], prefix: string): GitDoc[] => {
+  return tree.filter(
+    (item) =>
       item.type === "blob" && (!prefix || item.path.startsWith(prefix))
   );
-
-  return files;
 };
+
 
 const downloadNestedFile = async (
   file: GitDoc,
   info: GitHubInfo,
   baseDir: string
-) => {
+): Promise<void> => {
   const prefix = info.path ? `${info.path}/` : "";
-
-  const fileName = prefix ? file.path.substring(prefix.length) : file.path;
+  const fileName = getRelativeFileName(file.path, prefix);
   const filePath = join(baseDir, fileName);
 
-  const fileDir = filePath.substring(0, filePath.lastIndexOf("/"));
-
-  // Create directory if needed
-  if (fileDir !== baseDir) {
-    await mkdir(fileDir, { recursive: true });
-  }
-
-  // Download file content
-  const url = `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${info.branch}/${file.path}`;
-  const response = await fetch(url);
-  if (response.ok) {
-    const content = await response.text();
-    await writeFile(filePath, content);
+  const url = getRawFileUrl(info, file.path);
+  
+  try {
+    const content = await fetchFileContent(url);
+    await writeFileWithDirs(filePath, content);
     console.log(`✓ ${fileName}`);
+  } catch (error) {
+    console.error(`✗ Failed to download ${fileName}: ${error}`);
+    throw error;
   }
 };
-export const downloadTree = async (info: GitHubInfo, outputDir: string) => {
+
+
+const downloadFilesInBatches = async (
+  files: GitDoc[],
+  info: GitHubInfo,
+  baseDir: string,
+  batchSize: number = 10
+): Promise<void> => {
+  for (let i = 0; i < files.length; i += batchSize) {
+    const batch = files.slice(i, i + batchSize);
+    await Promise.all(
+      batch.map((file) => downloadNestedFile(file, info, baseDir))
+    );
+  }
+};
+
+
+export const downloadTree = async (info: GitHubInfo, outputDir: string): Promise<void> => {
   try {
-    const files = await getFiles(info);
+    const tree = await fetchRepositoryTree(info);
+    const prefix = info.path ? `${info.path}/` : "";
+    const files = filterFilesByFolder(tree, prefix);
+    
     console.log(`Found ${files.length} files to download`);
 
-    const baseDir = await createDir(info, outputDir);
-
-    // Download files concurrently (in batches to avoid rate limiting)
-    const batchSize = 10;
-    for (let i = 0; i < files.length; i += batchSize) {
-      const batch = files.slice(i, i + batchSize);
-      await Promise.all(
-        batch.map((file) => downloadNestedFile(file, info, baseDir))
-      );
-    }
+    const baseDir = await createBaseDir(info, outputDir);
+    await downloadFilesInBatches(files, info, baseDir);
 
     console.log(`\n✓ Successfully downloaded to: ${baseDir}`);
   } catch (error) {
@@ -100,35 +144,25 @@ export const downloadTree = async (info: GitHubInfo, outputDir: string) => {
   }
 };
 
-export const downloadFile = async (info: GitHubInfo, outputDir: string) => {
-  const url = `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${info.branch}/${info.path}`;
+
+export const downloadFile = async (info: GitHubInfo, outputDir: string): Promise<void> => {
   console.log(`Downloading file: ${info.path}`);
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to download: ${response.statusText}`);
-    }
-
-    const content = await response.text();
+    const url = getRawFileUrl(info, info.path);
+    const content = await fetchFileContent(url);
 
     const fileName = info.path.split("/").pop() || "download";
     const filePath = join(outputDir, fileName);
 
-    const fileDir = filePath.substring(0, filePath.lastIndexOf("/"));
-
-    // Create directory if needed
-    if (!existsSync(fileDir)) {
-      await mkdir(fileDir, { recursive: true });
-    }
-
-    await writeFile(filePath, content);
+    await writeFileWithDirs(filePath, content);
     console.log(`✓ Downloaded: ${fileName}`);
   } catch (error) {
     console.error(`✗ Error downloading file: ${error}`);
     throw error;
   }
 };
+
 
 export const parseGitHubUrl = (url: string): GitHubInfo => {
   const regex =
@@ -157,4 +191,3 @@ export const parseGitHubUrl = (url: string): GitHubInfo => {
     type: !type ? "repo" : type === "blob" ? "blob" : "tree",
   };
 };
-
