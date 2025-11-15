@@ -1,7 +1,7 @@
 {
   "name": "@rare-dev/gitc",
   "module": "gitc.ts",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "homepage": "https://github.com/devravinder/gitc",
   "author": {
     "name": "Ravinder Reddy",
@@ -17,10 +17,10 @@
     "push": "bun publish"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "typescript": "^5"
   },
   "peerDependencies": {
-    "typescript": "^5"
   },
   "files": [
     "dist"
