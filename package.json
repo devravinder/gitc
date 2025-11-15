@@ -1,7 +1,7 @@
 {
   "name": "@rare-dev/gitc",
   "module": "gitc.ts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/devravinder/gitc",
   "author": {
     "name": "Ravinder Reddy",
